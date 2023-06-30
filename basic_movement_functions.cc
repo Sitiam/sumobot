@@ -1,12 +1,10 @@
 /*
-	L298N Motor Demonstration
-	L298N-Motor-Demo.ino
-	Demonstrates functions of L298N Motor Controller
-
-	DroneBot Workshop 2017
-	http://dronebotworkshop.com
+	Basic Movement Functions
 */
 
+// Speeds
+MAX_SPEED = 255;
+MIN_SPEED = 0;
 
 // Motor A
 int enA = 9;
