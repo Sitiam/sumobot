@@ -8,25 +8,31 @@ MIN_SPEED = 0;
 
 // Motor A
 int enA = 9;
-int in1 = 8;
-int in2 = 7;
+int inA_1 = 8;
+int inA_2 = 7;
 
 // Motor B
 int enB = 3;
-int in3 = 5;
-int in4 = 4;
+int inB_1 = 5;
+int inB_2 = 4;
 
-void setup()
-{
-
+void setup() {
     // Set all the motor control pins to outputs using pinMode()
     pinMode(enA, OUTPUT);
     pinMode(enB, OUTPUT);
-    pinMode(in1, OUTPUT);
-    pinMode(in2, OUTPUT);
-    pinMode(in3, OUTPUT);
-    pinMode(in4, OUTPUT);
+    pinMode(inA_1, OUTPUT);
+    pinMode(inA_2, OUTPUT);
+    pinMode(inB_1, OUTPUT);
+    pinMode(inB_2, OUTPUT);
+}
 
+void driveForward(int speed) {
+	digitalWrite(inA_1, HIGH);
+	digitalWrite(inA_2, LOW);
+	digitalWrite(inB_1, HIGH);
+	digitalWrite(inB_1, LOW);
+	analogWrite(enA, speed);
+	analogWrite(enB, speed);
 }
 
 void demoOne()
