@@ -21,30 +21,35 @@ int ANTICLOCKWISE = -1;
 int FORWARD = 0;
 int CLOCKWISE = 1;
 
-// WE WILL HAVE TO CHANGE THESE VALUES FOR OUR ROBOT.
+// Motor Constants (we will have to change these values for our robot)
 // Motor A (Left Motor)
-struct {
-	int enA = 9;
-	int inA_1 = 8;
-	int inA_2 = 7;
-} motorA;
+int enA = 9;
+int inA1 = 8;
+int inA2 = 7;
 
 // Motor B (Right Motor)
+int enB = 3;
+int inB1 = 5;
+int inB2 = 4;
+
+
 struct {
-	int enB = 3;
-	int inB_1 = 5;
-	int inB_2 = 4;
-} motorB;
+	int en;
+	int in1;
+	int in2;
+	int max_speed;
+	int min_speed;
+} motorA, MotorB;
 
 
 void setup() {
 	// Set all the motor control pins to outputs using pinMode()
 	pinMode(enA, OUTPUT);
 	pinMode(enB, OUTPUT);
-	pinMode(inA_1, OUTPUT);
-	pinMode(inA_2, OUTPUT);
-	pinMode(inB_1, OUTPUT);
-	pinMode(inB_2, OUTPUT);
+	pinMode(inA1, OUTPUT);
+	pinMode(inA2, OUTPUT);
+	pinMode(inB1, OUTPUT);
+	pinMode(inB2, OUTPUT);
 }
 
 // Speed between -MAX_SPEED (negative MAX_SPEED) and +MAX_SPEED (positive MAX_SPEED)
@@ -102,3 +107,22 @@ void forward_turn(int turn_direction, int turn_speed) {
 
 void reverse_turn() {
 }
+
+void main() {
+	setup();
+	
+	// Set up the two motor structs
+	motorA.en = enA;
+	motorA.in1 = inA1;
+	motorA.in2 = inA2;
+	motorA.max_speed = MAX_SPEED;
+	motorA.min_speed = MIN_SPEED;
+
+	motorB.en = enA;
+	motorB.in1 = inA1;
+	motorB.in2 = inA2;
+	motorB.max_speed = MAX_SPEED;
+	motorB.min_speed = MIN_SPEED;
+}
+
+main();
