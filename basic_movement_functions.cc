@@ -22,15 +22,20 @@ int FORWARD = 0;
 int CLOCKWISE = 1;
 
 // WE WILL HAVE TO CHANGE THESE VALUES FOR OUR ROBOT.
-// Motor A
-int enA = 9;
-int inA_1 = 8;
-int inA_2 = 7;
+// Motor A (Left Motor)
+struct {
+	int enA = 9;
+	int inA_1 = 8;
+	int inA_2 = 7;
+} motorA;
 
-// Motor B
-int enB = 3;
-int inB_1 = 5;
-int inB_2 = 4;
+// Motor B (Right Motor)
+struct {
+	int enB = 3;
+	int inB_1 = 5;
+	int inB_2 = 4;
+} motorB;
+
 
 void setup() {
 	// Set all the motor control pins to outputs using pinMode()
@@ -40,6 +45,13 @@ void setup() {
 	pinMode(inA_2, OUTPUT);
 	pinMode(inB_1, OUTPUT);
 	pinMode(inB_2, OUTPUT);
+}
+
+// Speed between -MAX_SPEED (negative MAX_SPEED) and +MAX_SPEED (positive MAX_SPEED)
+// Negative speed makes the motor spin backwards
+driveSingleWheel(int motor_in_1, int motor_in_2, int en_motor, int speed) {
+	digitalWrite(inA_1, HIGH);
+	digitalWrite(inA_2, LOW);
 }
 
 void driveForward(int speed) {
@@ -67,22 +79,26 @@ void turnOffMotors() {
 	digitalWrite(inB_1, LOW);
 }
 
-// Turns the robot.
+// Turns the robot while it moves forward.
 // -1 wheel_pointing_direction will make the robot rotate anticlockwise if it is moving forwards. 0 will not make the wheels move. 1 will the the robot rotate clockwise.
-// turn_speed should be a value between -100 and 100. 0 turn speed will not make the robot turn. 100 turn speed will make the robot turn very quickly on the spot.
-// turn_speed in between will make it turn at a slower pace by making the robot still move forward as it turns. Negative turn speeds will make the robot
-// move back as it is turning (and hence reverse the turn direction).
-void forward_turn(int wheel_direction, int turn_speed) {
-	if (turn_speed == 0) {
-		return
-	} else if (turn_speed > 0) {
-		
-	} else {
-		
-	}
+// turn_speed should be an integer value between 0 and 100. 0 turn speed will not make the robot turn. 100 turn speed will make the robot turn very quickly on the spot.
+// turn_speed in between will make it turn at a slower pace by making the robot still move forward as it turns. 
+void forward_turn(int turn_direction, int turn_speed) {
+	// if (turn_speed == 0) {
+	// 	return
+	// }
+	if (turn_direction == -1) {
+		digitalWrite(inA_1, HIGH);
+		digitalWrite(inA_2, LOW);
+		digitalWrite(inB_1, HIGH);
+		digitalWrite(inB_1, LOW);
+	} (turn_direction == 0) {}
 	digitalWrite(inA_1, HIGH);
 	digitalWrite(inA_2, LOW);
 	digitalWrite(inB_1, HIGH);
 	digitalWrite(inB_1, LOW);
 	
+}
+
+void reverse_turn() {
 }
