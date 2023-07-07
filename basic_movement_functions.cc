@@ -1,15 +1,25 @@
 /*
-Basic Movement Functions
+	Basic Movement Functions
+
+ 	Sorry for the rambly comments but at least the code is still readable and self-documented.
+
+ 	NOTES:
+	- delay(1000) makes the robot wait for 1000 milliseconds I think.
+ 	- maybe we end up using async functions if they exist in c++?
+  
+  	TODO:
+   	- Input functions in a separate file
+	- Strategy implementation in a separate file (main or something)
 */
 
 // Speeds
-MAX_SPEED = 255;
-MIN_SPEED = 0;
+int MAX_SPEED = 255;
+int MIN_SPEED = 0;
 
 // Directions
-ANTICLOCKWISE = -1;
-FORWARD = 0;
-CLOCKWISE = 1;
+int ANTICLOCKWISE = -1;
+int FORWARD = 0;
+int CLOCKWISE = 1;
 
 // WE WILL HAVE TO CHANGE THESE VALUES FOR OUR ROBOT.
 // Motor A
@@ -57,4 +67,22 @@ void turnOffMotors() {
 	digitalWrite(inB_1, LOW);
 }
 
-void turn()
+// Turns the robot.
+// -1 wheel_pointing_direction will make the robot rotate anticlockwise if it is moving forwards. 0 will not make the wheels move. 1 will the the robot rotate clockwise.
+// turn_speed should be a value between -100 and 100. 0 turn speed will not make the robot turn. 100 turn speed will make the robot turn very quickly on the spot.
+// turn_speed in between will make it turn at a slower pace by making the robot still move forward as it turns. Negative turn speeds will make the robot
+// move back as it is turning (and hence reverse the turn direction).
+void forward_turn(int wheel_direction, int turn_speed) {
+	if (turn_speed == 0) {
+		return
+	} else if (turn_speed > 0) {
+		
+	} else {
+		
+	}
+	digitalWrite(inA_1, HIGH);
+	digitalWrite(inA_2, LOW);
+	digitalWrite(inB_1, HIGH);
+	digitalWrite(inB_1, LOW);
+	
+}
