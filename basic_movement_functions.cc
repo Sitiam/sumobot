@@ -1,5 +1,5 @@
 /*
-	Basic Movement Functions
+Basic Movement Functions
 */
 
 // Speeds
@@ -23,13 +23,13 @@ int inB_1 = 5;
 int inB_2 = 4;
 
 void setup() {
-    // Set all the motor control pins to outputs using pinMode()
-    pinMode(enA, OUTPUT);
-    pinMode(enB, OUTPUT);
-    pinMode(inA_1, OUTPUT);
-    pinMode(inA_2, OUTPUT);
-    pinMode(inB_1, OUTPUT);
-    pinMode(inB_2, OUTPUT);
+	// Set all the motor control pins to outputs using pinMode()
+	pinMode(enA, OUTPUT);
+	pinMode(enB, OUTPUT);
+	pinMode(inA_1, OUTPUT);
+	pinMode(inA_2, OUTPUT);
+	pinMode(inB_1, OUTPUT);
+	pinMode(inB_2, OUTPUT);
 }
 
 void driveForward(int speed) {
