@@ -8,7 +8,6 @@
 	- maybe we end up using async functions if they exist in C++?
   
   	TODO:
-   	- Input functions.
 	- Strategy implementation in a separate file (main or something).
 */
 
