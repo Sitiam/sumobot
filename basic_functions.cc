@@ -1,5 +1,5 @@
 /*
-	Basic Movement Functions
+	Basic Functions
 
 	Sorry for the rambly comments but at least the code is still readable and self-documented.
 
@@ -8,7 +8,7 @@
 	- maybe we end up using async functions if they exist in C++?
   
   	TODO:
-   	- Input functions in a separate file.
+   	- Input functions.
 	- Strategy implementation in a separate file (main or something).
 */
 
@@ -88,18 +88,18 @@ void turnOffMotors() {
 // MAX_SPEED turn speed will make the robot turn very quickly on the spot.
 // turn_speed in between will make it turn at a slower pace by making the robot still move forward as it turns. 
 void forward_turn(const Motor& motorA, const Motor& motorB, int turn_direction, int turn_speed) {
-	if (turn_speed == 0) {
-		return;
-	}
+	// if (turn_speed == 0) {  // Probably not needed
+	// 	return;
+	// }
 
 	driveSingleWheel(motorA, turn_direction * turn_speed);
 	driveSingleWheel(motorB, -turn_direction * turn_speed);
 }
 
 void reverse_turn(const Motor& motorA, const Motor& motorB, int turn_direction, int turn_speed) {
-	if (turn_speed == 0) {
-		return;
-	}
+	// if (turn_speed == 0) {  // Probably not needed
+	// 	return;
+	// }
 
 	driveSingleWheel(motorA, -turn_direction * turn_speed);
 	driveSingleWheel(motorB, turn_direction * turn_speed);
