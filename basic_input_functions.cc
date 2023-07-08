@@ -2,6 +2,7 @@
 	Basic input functions.
  
  	TODO:
+  	- READ THIS FOR INPUT AND SEARCH SIMILAR STUFF UP FOR BASIC OUTPUT AND INPUT CODE: https://peppe8o.com/ir-sensor-with-arduino-wiring-and-code-explained/#:~:text=In%20the%20beginning%2C%20we%20declare%20the%20ir_sensor_pin%20with,%28ir_sensor_pin%2C%20INPUT%29%3B%20%2F%2F%20Pin%20set%20as%20input%20%7D
   	- what does analogRead(infraredSensorPin) return?
   	- Need to create more instances of each ultrasonic sensor and ir sensor cos we have multiple.
    	- functions for the grouping input.
