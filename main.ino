@@ -126,7 +126,7 @@ void turnOffMotors() {
 // Turns the robot while it moves forward.
 // -1 wheel_pointing_direction will make the robot rotate anticlockwise if it is moving forwards. 
 // 0 will not make the wheels move. 1 will make the robot rotate clockwise.
-// turn_speed should be an integer value between 0 and MAX_SPEED. 0 turn speed will not make the robot turn. 
+// turn_speed should be an integer value between 0 and MAX_SPEED. 0 turn speed will not make the robot turn.
 // MAX_SPEED turn speed will make the robot turn very quickly on the spot.
 // turn_speed in between will make it turn at a slower pace by making the robot still move forward as it turns. 
 void forward_turn(const Motor& motorA, const Motor& motorB, int turn_direction, int turn_speed) {
@@ -329,37 +329,51 @@ void main_competition_strategy() {
   // I CAN PROBABLY GET RID OF THE CHECKS THAT CHECK IF ITS GREATER THAN 0 BECAUSE APPARENTLY NOW THEY REUTRN A VERY BIG VALUE 200000 IF NOTHING IS DETECTED.
   while (true) {
 
-    update_distance_and_direction_readings(&enemy_was_to_left, &enemy_was_to_centre, &enemy_was_to_right, &enemy_is_to_left, &enemy_is_to_centre, &enemy_is_to_right,
-                                           &distance_ultrasonic_left_cm, &distance_ultrasonic_centre_cm, &distance_ultrasonic_right_cm, &old_distance_ultrasonic_left_cm, &old_distance_ultrasonic_centre_cm, &old_distance_ultrasonic_right_cm,
-                                           &front_left_ir_value, &back_left_ir_value, &back_right_ir_value, &front_right_ir_value);
+    update_distance_and_direction_readings(&enemy_was_to_left, &enemy_was_to_centre, &enemy_was_to_right, &enemy_is_to_left, &enemy_is_to_centre, &enemy_is_to_right, &distance_ultrasonic_left_cm, &distance_ultrasonic_centre_cm, &distance_ultrasonic_right_cm, &old_distance_ultrasonic_left_cm, &old_distance_ultrasonic_centre_cm, &old_distance_ultrasonic_right_cm, &front_left_ir_value, &back_left_ir_value, &back_right_ir_value, &front_right_ir_value);
 
     // Edge avoidance system
     // Cases where enemy is far away
-    // Cases where one sensor is triggered
     if (!enemy_is_to_left && !enemy_is_to_right && !enemy_is_to_centre) {
+      // Cases where one sensor is triggered
       if (front_left_ir_value == HIGH && back_left_ir_value != HIGH && back_right_ir_value != HIGH && front_right_ir_value != HIGH) {
         turnStartTime = millis();
         while (millis() - turnStartTime < 500) {
-          // Perform the turn (adjust the turn direction and speed based on your robot's configuration)
           reverse_turn(motorA, motorB, CLOCKWISE, MAX_SPEED / 10);
+          update_distance_and_direction_readings(&enemy_was_to_left, &enemy_was_to_centre, &enemy_was_to_right, &enemy_is_to_left, &enemy_is_to_centre, &enemy_is_to_right, &distance_ultrasonic_left_cm, &distance_ultrasonic_centre_cm, &distance_ultrasonic_right_cm, &old_distance_ultrasonic_left_cm, &old_distance_ultrasonic_centre_cm, &old_distance_ultrasonic_right_cm, &front_left_ir_value, &back_left_ir_value, &back_right_ir_value, &front_right_ir_value);
+        }
+        turnStartTime = millis();
+        while (millis() - turnStartTime < 500) {
+          forward_turn(motorA, motorB, CLOCKWISE, MAX_SPEED);
+          update_distance_and_direction_readings(&enemy_was_to_left, &enemy_was_to_centre, &enemy_was_to_right, &enemy_is_to_left, &enemy_is_to_centre, &enemy_is_to_right, &distance_ultrasonic_left_cm, &distance_ultrasonic_centre_cm, &distance_ultrasonic_right_cm, &old_distance_ultrasonic_left_cm, &old_distance_ultrasonic_centre_cm, &old_distance_ultrasonic_right_cm, &front_left_ir_value, &back_left_ir_value, &back_right_ir_value, &front_right_ir_value);
+        }
 
-          // Collect sensor data and perform other tasks here
-          // 
+      } else if (front_left_ir_value != HIGH && back_left_ir_value == HIGH && back_right_ir_value != HIGH && front_right_ir_value != HIGH) {
+        turnStartTime = millis();
+        while (millis() - turnStartTime < 500) {
+          forward_turn(motorA, motorB, CLOCKWISE, MAX_SPEED / 3);
+          update_distance_and_direction_readings(&enemy_was_to_left, &enemy_was_to_centre, &enemy_was_to_right, &enemy_is_to_left, &enemy_is_to_centre, &enemy_is_to_right, &distance_ultrasonic_left_cm, &distance_ultrasonic_centre_cm, &distance_ultrasonic_right_cm, &old_distance_ultrasonic_left_cm, &old_distance_ultrasonic_centre_cm, &old_distance_ultrasonic_right_cm, &front_left_ir_value, &back_left_ir_value, &back_right_ir_value, &front_right_ir_value);
+        }
 
-          // Add a small delay (optional, can be removed if needed)
+      } else if (front_left_ir_value != HIGH && back_left_ir_value != HIGH && back_right_ir_value == HIGH && front_right_ir_value != HIGH) {
+        turnStartTime = millis();
+        while (millis() - turnStartTime < 500) {
+          forward_turn(motorA, motorB, ANTICLOCKWISE, MAX_SPEED / 3);
+          update_distance_and_direction_readings(&enemy_was_to_left, &enemy_was_to_centre, &enemy_was_to_right, &enemy_is_to_left, &enemy_is_to_centre, &enemy_is_to_right, &distance_ultrasonic_left_cm, &distance_ultrasonic_centre_cm, &distance_ultrasonic_right_cm, &old_distance_ultrasonic_left_cm, &old_distance_ultrasonic_centre_cm, &old_distance_ultrasonic_right_cm, &front_left_ir_value, &back_left_ir_value, &back_right_ir_value, &front_right_ir_value);
+        }
+
+      } else if (front_left_ir_value != HIGH && back_left_ir_value != HIGH && back_right_ir_value != HIGH && front_right_ir_value == HIGH) {
+        turnStartTime = millis();
+        while (millis() - turnStartTime < 500) {
+          reverse_turn(motorA, motorB, ANTICLOCKWISE, MAX_SPEED / 10);
+          update_distance_and_direction_readings(&enemy_was_to_left, &enemy_was_to_centre, &enemy_was_to_right, &enemy_is_to_left, &enemy_is_to_centre, &enemy_is_to_right, &distance_ultrasonic_left_cm, &distance_ultrasonic_centre_cm, &distance_ultrasonic_right_cm, &old_distance_ultrasonic_left_cm, &old_distance_ultrasonic_centre_cm, &old_distance_ultrasonic_right_cm, &front_left_ir_value, &back_left_ir_value, &back_right_ir_value, &front_right_ir_value);
         }
 
         turnStartTime = millis();
         while (millis() - turnStartTime < 500) {
-          // Perform the turn (adjust the turn direction and speed based on your robot's configuration)
-          forward_turn(motorA, motorB, CLOCKWISE, MAX_SPEED);
-
-          // Collect sensor data and perform other tasks here
-          // 
-
-          // Add a small delay (optional, can be removed if needed)
+          forward_turn(motorA, motorB, ANTICLOCKWISE, MAX_SPEED);
+          update_distance_and_direction_readings(&enemy_was_to_left, &enemy_was_to_centre, &enemy_was_to_right, &enemy_is_to_left, &enemy_is_to_centre, &enemy_is_to_right, &distance_ultrasonic_left_cm, &distance_ultrasonic_centre_cm, &distance_ultrasonic_right_cm, &old_distance_ultrasonic_left_cm, &old_distance_ultrasonic_centre_cm, &old_distance_ultrasonic_right_cm, &front_left_ir_value, &back_left_ir_value, &back_right_ir_value, &front_right_ir_value);
         }
-      } else if (true) {}
+      }
         // Cases where two sensors are triggered
 
         // Cases where more then two sensors are trigged (should never happen but just in case)
@@ -422,16 +436,6 @@ void main_competition_strategy() {
       // Search by spinning on the spot
       forward_turn(motorA, motorB, CLOCKWISE, MAX_SPEED);
     }
-
-    // update distance measurements ultrasonic.
-    distance_ultrasonic_left_cm = ultrasonic_left.read();
-    distance_ultrasonic_centre_cm = ultrasonic_centre.read();
-    distance_ultrasonic_right_cm = ultrasonic_right.read();
-
-    front_left_ir_value = digitalRead(FRONT_LEFT_IR);
-    back_left_ir_value = digitalRead(BACK_LEFT_IR);
-    back_right_ir_value = digitalRead(BACK_RIGHT_IR);
-    front_right_ir_value = digitalRead(FRONT_RIGHT_IR);
   }
 }
 
