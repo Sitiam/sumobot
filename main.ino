@@ -338,9 +338,9 @@ void update_distance_and_direction_readings(bool *enemy_was_to_left, bool *enemy
   *distance_ultrasonic_right_cm = detect_distance(ultrasonic_right);  // YOU MIGHT have to constantly update these in the loop
   // Update last enemy detection direction. NOTE: we don't set these to false because we want to track the last known enemy location. We will set these to false later on within certain functions.
   // 'was' are saved statuses of the past used as a secondary resource if the enemy is not currently already in front of our sensors. 'is' are current statuses and are used as the primary resource.
+
   
-  
-  if (*distance_ultrasonic_left_cm < RING_DIAMETER_CM) {
+  if (*distance_ultrasonic_left_cm < RING_DIAMETER_CM || *distance_ultrasonic_centre_cm < RING_DIAMETER_CM) || *distance_ultrasonic_right_cm < RING_DIAMETER_CM {
     *old_distance_ultrasonic_left_cm = *distance_ultrasonic_left_cm;
     *enemy_was_to_left = true;
     *enemy_is_to_left = true;
@@ -519,16 +519,10 @@ void main_competition_strategy() {
   }
 }
 
-// Maybe i need to pass in the so called constants defined before into these functions? Or maybe not since they are global scope.
-void loop() {
-  
-  // main_competition_strategy();
-  // testing_movement();
+void test_ultrasonics() {
   int distance_ultrasonic_left_cm =  detect_distance(ultrasonic_left);  // It is better to call this every time to ensure we have most up to date data.
   int distance_ultrasonic_centre_cm = detect_distance(ultrasonic_centre);  // we should check for 0 < ring diameter here as some things return negative if nothing detected
   int distance_ultrasonic_right_cm = detect_distance(ultrasonic_right);  // YOU MIGHT have to constantly update these in the loop
-
-
 
   // Example: Sending data to Serial Monitor
   Serial.print("Left value: ");
@@ -537,4 +531,9 @@ void loop() {
   Serial.println(distance_ultrasonic_centre_cm);
   Serial.print("Right value: ");
   Serial.println(distance_ultrasonic_right_cm);
+}
+
+void loop() {
+  // main_competition_strategy();
+  // testing_movement();
 }
