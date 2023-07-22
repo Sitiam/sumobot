@@ -252,8 +252,52 @@ void move_to_side_start_sequence() {
   delay(500);
 }
 
+void update_distance_and_direction_readings(bool *enemy_was_to_left, bool *enemy_was_to_centre, bool *enemy_was_to_right, bool *enemy_is_to_left, bool *enemy_is_to_centre, bool *enemy_is_to_right,
+                                            int *distance_ultrasonic_left_cm, int *distance_ultrasonic_centre_cm, int *distance_ultrasonic_right_cm, int *old_distance_ultrasonic_left_cm, int *old_distance_ultrasonic_centre_cm, int *old_distance_ultrasonic_right_cm,
+                                            int *front_left_ir_value, int *back_left_ir_value, int *back_right_ir_value, int *front_right_ir_value) {
+  *distance_ultrasonic_left_cm = ultrasonic_left.read();  // It is better to call this every time to ensure we have most up to date data.
+  *distance_ultrasonic_centre_cm = ultrasonic_centre.read();  // we should check for 0 < ring diameter here as some things return negative if nothing detected
+  *distance_ultrasonic_right_cm = ultrasonic_right.read();  // YOU MIGHT have to constantly update these in the loop
+  // Update last enemy detection direction. NOTE: we don't set these to false because we want to track the last known enemy location. We will set these to false later on within certain functions.
+  // 'was' are saved statuses of the past used as a secondary resource if the enemy is not currently already in front of our sensors. 'is' are current statuses and are used as the primary resource.
+  if (*distance_ultrasonic_left_cm < RING_DIAMETER_CM) {
+    *old_distance_ultrasonic_left_cm = *distance_ultrasonic_left_cm;
+    *enemy_was_to_left = true;
+    *enemy_is_to_left = true;
+    *enemy_was_to_right = false;
+    *enemy_was_to_centre = false;
+  } else {
+    *enemy_is_to_left = false;
+  }
+
+  if (*distance_ultrasonic_centre_cm < RING_DIAMETER_CM) {  // might run into some issues when enemy is right up against our sensor, but if our sensor doesn't detect anything, then 0 is apparently returned according to chatgpt.
+    *old_distance_ultrasonic_centre_cm = *distance_ultrasonic_centre_cm;
+    *enemy_was_to_centre = true;
+    *enemy_is_to_centre = true;
+    *enemy_was_to_left = false;
+    *enemy_was_to_right = false;
+  } else {
+    *enemy_is_to_centre = false;
+  }
+
+  if (*distance_ultrasonic_right_cm < RING_DIAMETER_CM) {
+    *old_distance_ultrasonic_right_cm = *distance_ultrasonic_right_cm;
+    *enemy_was_to_right = true;
+    *enemy_is_to_right = true;
+    *enemy_was_to_left = false;
+    *enemy_was_to_centre = false;
+  } else {
+    *enemy_is_to_right = false;
+  }
+
+  *front_left_ir_value = digitalRead(FRONT_LEFT_IR);  // YOU MIGHT have to constantly update these in the loop
+  *back_left_ir_value = digitalRead(BACK_LEFT_IR);
+  *back_right_ir_value = digitalRead(BACK_RIGHT_IR);
+  *front_right_ir_value = digitalRead(FRONT_RIGHT_IR);
+}
+
 void main_competition_strategy() {
-  delay(5000);  // Rules state we must wait for 5 seconds before moving
+  delay(5000);  // Rules state we must wait for 5 seconds before moving  
 
   // Past events - used as secondary resource.
   bool enemy_was_to_left = false;  // you might have to also constantly update these in the loop.
@@ -271,58 +315,113 @@ void main_competition_strategy() {
   int distance_ultrasonic_centre_cm = ultrasonic_centre.read();  // we should check for 0 < ring diameter here as some things return negative if nothing detected
   int distance_ultrasonic_right_cm = ultrasonic_right.read();  // YOU MIGHT have to constantly update these in the loop
 
+  int old_distance_ultrasonic_left_cm = distance_ultrasonic_left_cm;
+  int old_distance_ultrasonic_centre_cm = distance_ultrasonic_centre_cm;
+  int old_distance_ultrasonic_right_cm = distance_ultrasonic_right_cm;
+
   int front_left_ir_value = digitalRead(FRONT_LEFT_IR);  // YOU MIGHT have to constantly update these in the loop
   int back_left_ir_value = digitalRead(BACK_LEFT_IR);
   int back_right_ir_value = digitalRead(BACK_RIGHT_IR);
   int front_right_ir_value = digitalRead(FRONT_RIGHT_IR);
 
+  unsigned long turnStartTime;
+
   // I CAN PROBABLY GET RID OF THE CHECKS THAT CHECK IF ITS GREATER THAN 0 BECAUSE APPARENTLY NOW THEY REUTRN A VERY BIG VALUE 200000 IF NOTHING IS DETECTED.
   while (true) {
-    // Update last enemy detection direction. NOTE: we don't set these to false because we want to track the last known enemy location. We will set these to false later on within certain functions.
-    // 'was' are saved statuses of the past used as a secondary resource if the enemy is not currently already in front of our sensors. 'is' are current statuses and are used as the primary resource.
-    if (distance_ultrasonic_left_cm < RING_DIAMETER_CM && distance_ultrasonic_centre_cm > 0) {
-      enemy_was_to_left = true;
-      enemy_is_to_left = true;
+
+    update_distance_and_direction_readings(&enemy_was_to_left, &enemy_was_to_centre, &enemy_was_to_right, &enemy_is_to_left, &enemy_is_to_centre, &enemy_is_to_right,
+                                           &distance_ultrasonic_left_cm, &distance_ultrasonic_centre_cm, &distance_ultrasonic_right_cm, &old_distance_ultrasonic_left_cm, &old_distance_ultrasonic_centre_cm, &old_distance_ultrasonic_right_cm,
+                                           &front_left_ir_value, &back_left_ir_value, &back_right_ir_value, &front_right_ir_value);
+
+    // Edge avoidance system
+    // Cases where enemy is far away
+    // Cases where one sensor is triggered
+    if (!enemy_is_to_left && !enemy_is_to_right && !enemy_is_to_centre) {
+      if (front_left_ir_value == HIGH && back_left_ir_value != HIGH && back_right_ir_value != HIGH && front_right_ir_value != HIGH) {
+        turnStartTime = millis();
+        while (millis() - turnStartTime < 500) {
+          // Perform the turn (adjust the turn direction and speed based on your robot's configuration)
+          reverse_turn(motorA, motorB, CLOCKWISE, MAX_SPEED / 10);
+
+          // Collect sensor data and perform other tasks here
+          // 
+
+          // Add a small delay (optional, can be removed if needed)
+        }
+
+        turnStartTime = millis();
+        while (millis() - turnStartTime < 500) {
+          // Perform the turn (adjust the turn direction and speed based on your robot's configuration)
+          forward_turn(motorA, motorB, CLOCKWISE, MAX_SPEED);
+
+          // Collect sensor data and perform other tasks here
+          // 
+
+          // Add a small delay (optional, can be removed if needed)
+        }
+      } else if (true) {}
+        // Cases where two sensors are triggered
+
+        // Cases where more then two sensors are trigged (should never happen but just in case)
+    // Cases where enemy is right next or in front of us
     } else {
-      enemy_is_to_left = false;
+      // Cases where one sensor is triggered
+
+      // Cases where two sensors are triggered
+
+      // Cases where more then two sensors are trigged (should never happen but just in case)
     }
 
-    if (distance_ultrasonic_centre_cm < RING_DIAMETER_CM && distance_ultrasonic_centre_cm > 0) {  // might run into some issues when enemy is right up against our sensor but if our sensor doesnt detect anything then 0 is apparently returned according to chatgpt.
-      enemy_was_to_centre = true;
-      enemy_is_to_centre = true;
-    } else {
-      enemy_is_to_centre = false;
-    }
 
-    if (distance_ultrasonic_right_cm < RING_DIAMETER_CM && distance_ultrasonic_centre_cm > 0) {
-      enemy_was_to_right = true;
-      enemy_is_to_right = true;
-    } else {
-      enemy_is_to_right = false;
-    }
 
+
+
+    // Main attack/movement/search system
     if (enemy_is_to_centre || enemy_is_to_left || enemy_is_to_right) {
       // Check current statuses - priority is given to these and we go off these first.
       // Determine the direction with the least distance
       if (distance_ultrasonic_left_cm < distance_ultrasonic_centre_cm &&
           distance_ultrasonic_left_cm < distance_ultrasonic_right_cm) {
         // Turn left
-        forward_turn(motorA, motorB, ANTICLOCKWISE, MAX_SPEED * 2 / 3);
+        forward_turn(motorA, motorB, ANTICLOCKWISE, MAX_SPEED / max(distance_ultrasonic_left_cm / (RING_DIAMETER_CM / 2), 1));
+
+        old_distance_ultrasonic_right_cm = RING_DIAMETER_CM + 20;
+        old_distance_ultrasonic_centre_cm = RING_DIAMETER_CM + 20;
+        
       } else if (distance_ultrasonic_right_cm < distance_ultrasonic_centre_cm &&
-          distance_ultrasonic_right_cm < distance_ultrasonic_left_cm) {
+                 distance_ultrasonic_right_cm < distance_ultrasonic_left_cm) {
         // Turn right
-        forward_turn(motorA, motorB, CLOCKWISE, MAX_SPEED * 2 / 3);
+        forward_turn(motorA, motorB, CLOCKWISE, MAX_SPEED / max(distance_ultrasonic_right_cm / (RING_DIAMETER_CM / 2), 1));
+
+        old_distance_ultrasonic_left_cm = RING_DIAMETER_CM + 20;
+        old_distance_ultrasonic_centre_cm = RING_DIAMETER_CM + 20;
+      } else {
+        // Go forward
+        driveStraight(motorA, motorB, MAX_SPEED);
+        old_distance_ultrasonic_left_cm = RING_DIAMETER_CM + 20;
+        old_distance_ultrasonic_right_cm = RING_DIAMETER_CM + 20;
+      }
+
+    } else if (enemy_was_to_centre || enemy_was_to_left || enemy_was_to_right) {
+      // Check previous statuses. We go off these as a second resource of information if the enemy is not directly in front of our sensors at this moment in time.
+      // These might need some fine tuning - same with the primary resource variants.
+      if (old_distance_ultrasonic_left_cm < old_distance_ultrasonic_centre_cm &&
+          old_distance_ultrasonic_left_cm < old_distance_ultrasonic_right_cm) {
+        // Turn left
+        forward_turn(motorA, motorB, ANTICLOCKWISE, MAX_SPEED / max(old_distance_ultrasonic_left_cm / (RING_DIAMETER_CM / 2), 1));
+      } else if (old_distance_ultrasonic_right_cm < old_distance_ultrasonic_centre_cm &&
+          old_distance_ultrasonic_right_cm < old_distance_ultrasonic_left_cm) {
+        // Turn right
+        forward_turn(motorA, motorB, CLOCKWISE, MAX_SPEED / max(old_distance_ultrasonic_right_cm / (RING_DIAMETER_CM / 2), 1));
       } else {
         // Go forward
         driveStraight(motorA, motorB, MAX_SPEED);
       }
-
-
-
-      // Check previous statuses. We go off these as a second resource of information if the enemy is not directly in front of our sensors at this moment in time.
+    } else {
+      // This shouldn't ever be the case because enemy is always in front or was in front of one of our ultrasonic sensors but just in case
+      // Search by spinning on the spot
+      forward_turn(motorA, motorB, CLOCKWISE, MAX_SPEED);
     }
-
-
 
     // update distance measurements ultrasonic.
     distance_ultrasonic_left_cm = ultrasonic_left.read();
@@ -339,5 +438,5 @@ void main_competition_strategy() {
 // Maybe i need to pass in the so called constants defined before into these functions? Or maybe not since they are global scope.
 void loop() {
   main_competition_strategy();
-	testing_movement();
+  testing_movement();
 }
