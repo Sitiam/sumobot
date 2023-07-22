@@ -2,25 +2,17 @@
 	Basic Functions
 
 	NOTES:
-	- delay(1000) makes the robot wait for 1000 milliseconds.
-	- maybe we end up using async functions if they exist in C++?
   - We may need to worry about the orange tape in the middle of the right when using HIGH.
   
   TODO:
   - Sensor input.
 	- Strategy implementation.
-*/
-
-/*
-	Basic input functions.
- 
- 	TODO:
-  	- READ THIS FOR INPUT AND SEARCH SIMILAR STUFF UP FOR BASIC OUTPUT AND INPUT CODE: https://peppe8o.com/ir-sensor-with-arduino-wiring-and-code-explained/#:~:text=In%20the%20beginning%2C%20we%20declare%20the%20ir_sensor_pin%20with,%28ir_sensor_pin%2C%20INPUT%29%3B%20%2F%2F%20Pin%20set%20as%20input%20%7D
-  	- what does analogRead(infraredSensorPin) return?
-  	- Need to create more instances of each ultrasonic sensor and ir sensor cos we have multiple.
-   	- functions for the grouping input.
-  	- Detection for where enemy is in between left two and right two sensors.
-   	- Detection for otherwise (e.g. enemy is seem on rightmost facing sensor but then disappears - we should still turn right)
+  - READ THIS FOR INPUT AND SEARCH SIMILAR STUFF UP FOR BASIC OUTPUT AND INPUT CODE: https://peppe8o.com/ir-sensor-with-arduino-wiring-and-code-explained/#:~:text=In%20the%20beginning%2C%20we%20declare%20the%20ir_sensor_pin%20with,%28ir_sensor_pin%2C%20INPUT%29%3B%20%2F%2F%20Pin%20set%20as%20input%20%7D
+  - what does analogRead(infraredSensorPin) return?
+  - Need to create more instances of each ultrasonic sensor and ir sensor cos we have multiple.
+  - functions for the grouping input.
+  - Detection for where enemy is in between left two and right two sensors.
+  - Detection for otherwise (e.g. enemy is seem on rightmost facing sensor but then disappears - we should still turn right)
 	- Detection for sensor groups (e.g. the two ir sensors (also applies to ultrasonic sensors) at the back of the robot both get white input. We should therefore do avoidance maneuvore or just push forward)
 */
 
@@ -30,17 +22,20 @@
 // #define LEFT -1
 // #define RIGHT 1
 
-// #include <Ultrasonic.h>
+#include <Ultrasonic.h>
 
-// defines pins numbers
-struct Ultrasonic {
-  int trig_pin;
-  int echo_pin;
-};
+// struct Ultrasonic {
+//   int trig_pin;
+//   int echo_pin;
+// };
 
-const Ultrasonic ultrasonic_left = {7, 6};
-const Ultrasonic ultrasonic_centre = {3, 2};
-const Ultrasonic ultrasonic_right = {5, 4};  // Format is trig pin then echo pin
+// const Ultrasonic ultrasonic_left = {7, 6};
+// const Ultrasonic ultrasonic_centre = {3, 2};
+// const Ultrasonic ultrasonic_right = {5, 4};  // Format is trig pin then echo pin
+
+Ultrasonic ultrasonic_left(7, 6);
+Ultrasonic ultrasonic_centre(3, 2);
+Ultrasonic ultrasonic_right(5, 4);  // Format is trig pin then echo pin
 
 // I'm unsure which one works so heres both declarations for ir sensors - should just be the first one I hope.
 const int FRONT_LEFT_IR = 0;
@@ -98,12 +93,12 @@ void setup() {
   pinMode(BACK_RIGHT_IR, INPUT);
   pinMode(FRONT_RIGHT_IR, INPUT);
 
-  pinMode(ultrasonic_left.trig_pin, OUTPUT); // Sets the trigPin as an Output
-  pinMode(ultrasonic_left.echo_pin, INPUT); // Sets the echoPin as an Input
-  pinMode(ultrasonic_centre.trig_pin, OUTPUT); // Sets the trigPin as an Output
-  pinMode(ultrasonic_centre.echo_pin, INPUT); // Sets the echoPin as an Input
-  pinMode(ultrasonic_right.trig_pin, OUTPUT); // Sets the trigPin as an Output
-  pinMode(ultrasonic_right.echo_pin, INPUT); // Sets the echoPin as an Input
+  // pinMode(ultrasonic_left.trig_pin, OUTPUT); // Sets the trigPin as an Output
+  // pinMode(ultrasonic_left.echo_pin, INPUT); // Sets the echoPin as an Input
+  // pinMode(ultrasonic_centre.trig_pin, OUTPUT); // Sets the trigPin as an Output
+  // pinMode(ultrasonic_centre.echo_pin, INPUT); // Sets the echoPin as an Input
+  // pinMode(ultrasonic_right.trig_pin, OUTPUT); // Sets the trigPin as an Output
+  // pinMode(ultrasonic_right.echo_pin, INPUT); // Sets the echoPin as an Input
 }
 
 // Speed between -MAX_SPEED (negative MAX_SPEED) and +MAX_SPEED (positive MAX_SPEED)
@@ -157,19 +152,19 @@ void reverse_turn(const Motor& motorA, const Motor& motorB, int turn_direction, 
 	driveSingleWheel(motorB, -motorB.max_speed + 2 * turn_direction * turn_speed);
 }
 
-int detect_distance(const Ultrasonic& sensor) {
-  // Clears the trigPin
-  digitalWrite(sensor.trig_pin, LOW);
-  delayMicroseconds(2);
-  // Sets the trigPin on HIGH state for 10 micro seconds
-  digitalWrite(sensor.trig_pin, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(sensor.trig_pin, LOW);
-  // Reads the echoPin, returns the sound wave travel time in microseconds
-  long duration = pulseIn(sensor.echo_pin, HIGH);
-  // Calculating the distance
-  return duration * 0.034 / 2;
-}
+// int detect_distance(const Ultrasonic& sensor) {
+//   // Clears the trigPin
+//   digitalWrite(sensor.trig_pin, LOW);
+//   delayMicroseconds(2);
+//   // Sets the trigPin on HIGH state for 10 micro seconds
+//   digitalWrite(sensor.trig_pin, HIGH);
+//   delayMicroseconds(10);
+//   digitalWrite(sensor.trig_pin, LOW);
+//   // Reads the echoPin, returns the sound wave travel time in microseconds
+//   long duration = pulseIn(sensor.echo_pin, HIGH);
+//   // Calculating the distance
+//   return duration * 0.034 / 2;
+// }
 
 // THIS IS ONLY FOR TESTING
 void testing_movement() {
@@ -333,14 +328,14 @@ void move_to_side_start_sequence() {
 void update_distance_and_direction_readings(bool *enemy_was_to_left, bool *enemy_was_to_centre, bool *enemy_was_to_right, bool *enemy_is_to_left, bool *enemy_is_to_centre, bool *enemy_is_to_right,
                                             int *distance_ultrasonic_left_cm, int *distance_ultrasonic_centre_cm, int *distance_ultrasonic_right_cm, int *old_distance_ultrasonic_left_cm, int *old_distance_ultrasonic_centre_cm, int *old_distance_ultrasonic_right_cm,
                                             int *front_left_ir_value, int *back_left_ir_value, int *back_right_ir_value, int *front_right_ir_value) {
-  *distance_ultrasonic_left_cm = detect_distance(ultrasonic_left);  // It is better to call this every time to ensure we have most up to date data.
-  *distance_ultrasonic_centre_cm = detect_distance(ultrasonic_centre);  // we should check for 0 < ring diameter here as some things return negative if nothing detected
-  *distance_ultrasonic_right_cm = detect_distance(ultrasonic_right);  // YOU MIGHT have to constantly update these in the loop
+  *distance_ultrasonic_left_cm = ultrasonic_left.read();  // It is better to call this every time to ensure we have most up to date data.
+  *distance_ultrasonic_centre_cm = ultrasonic_centre.read();  // we should check for 0 < ring diameter here as some things return negative if nothing detected
+  *distance_ultrasonic_right_cm = ultrasonic_right.read();  // YOU MIGHT have to constantly update these in the loop
   // Update last enemy detection direction. NOTE: we don't set these to false because we want to track the last known enemy location. We will set these to false later on within certain functions.
   // 'was' are saved statuses of the past used as a secondary resource if the enemy is not currently already in front of our sensors. 'is' are current statuses and are used as the primary resource.
 
   
-  if (*distance_ultrasonic_left_cm < RING_DIAMETER_CM || *distance_ultrasonic_centre_cm < RING_DIAMETER_CM) || *distance_ultrasonic_right_cm < RING_DIAMETER_CM {
+  if (*distance_ultrasonic_left_cm < RING_DIAMETER_CM || *distance_ultrasonic_centre_cm < RING_DIAMETER_CM || *distance_ultrasonic_right_cm < RING_DIAMETER_CM) {
     *old_distance_ultrasonic_left_cm = *distance_ultrasonic_left_cm;
     *enemy_was_to_left = true;
     *enemy_is_to_left = true;
@@ -391,9 +386,9 @@ void main_competition_strategy() {
 
   move_to_side_start_sequence();  // move to side to mess up opponent.
 
-  int distance_ultrasonic_left_cm = detect_distance(ultrasonic_right);  // It is better to call this every time to ensure we have most up to date data.
-  int distance_ultrasonic_centre_cm = detect_distance(ultrasonic_centre);  // we should check for 0 < ring diameter here as some things return negative if nothing detected
-  int distance_ultrasonic_right_cm = detect_distance(ultrasonic_right);  // YOU MIGHT have to constantly update these in the loop
+  int distance_ultrasonic_left_cm = ultrasonic_left.read();  // It is better to call this every time to ensure we have most up to date data.
+  int distance_ultrasonic_centre_cm = ultrasonic_centre.read();  // we should check for 0 < ring diameter here as some things return negative if nothing detected
+  int distance_ultrasonic_right_cm = ultrasonic_right.read();  // YOU MIGHT have to constantly update these in the loop
 
   int old_distance_ultrasonic_left_cm = distance_ultrasonic_left_cm;
   int old_distance_ultrasonic_centre_cm = distance_ultrasonic_centre_cm;
@@ -520,9 +515,9 @@ void main_competition_strategy() {
 }
 
 void test_ultrasonics() {
-  int distance_ultrasonic_left_cm =  detect_distance(ultrasonic_left);  // It is better to call this every time to ensure we have most up to date data.
-  int distance_ultrasonic_centre_cm = detect_distance(ultrasonic_centre);  // we should check for 0 < ring diameter here as some things return negative if nothing detected
-  int distance_ultrasonic_right_cm = detect_distance(ultrasonic_right);  // YOU MIGHT have to constantly update these in the loop
+  int distance_ultrasonic_left_cm = ultrasonic_left.read();  // It is better to call this every time to ensure we have most up to date data.
+  int distance_ultrasonic_centre_cm = ultrasonic_centre.read();  // we should check for 0 < ring diameter here as some things return negative if nothing detected
+  int distance_ultrasonic_right_cm = ultrasonic_right.read();  // YOU MIGHT have to constantly update these in the loop
 
   // Example: Sending data to Serial Monitor
   Serial.print("Left value: ");
