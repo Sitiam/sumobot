@@ -172,10 +172,23 @@ void reverse_turn(const Motor& motorA, const Motor& motorB, int turn_direction, 
 void testing_movement() {
 	// // Drive forward at full speed for 1 second
 	// driveStraight(motorA, motorB, MAX_SPEED);
-	// delay(1000);
+	// delay(5000);
 
   // driveStraight(motorA, motorB, 0);
   // delay(5000);
+
+  Serial.println("hi");
+
+  driveSingleWheel(motorA, motorA.max_speed);
+  delay(500);
+  driveSingleWheel(motorA, motorA.max_speed * 0.75);
+  delay(500);
+  driveSingleWheel(motorA, motorA.max_speed * 0.5);
+  delay(500);
+  driveSingleWheel(motorA, motorA.max_speed * 0.25);
+  delay(500);
+  driveSingleWheel(motorA, motorA.max_speed * 0);
+  delay(50000);
 
 
   // // Reverse
@@ -187,35 +200,77 @@ void testing_movement() {
 
 
   // CHECK FOR BOTH CLOCKWISE AND ANTICLOCKWISE IN THESE FUNCTIONS.  // MUST DO THIS FOR ALL, NOT JUST THESE FOUR. I RAN OUT OF TIME TONIGHT.
-	forward_turn(motorA, motorB, ANTICLOCKWISE, MAX_SPEED);
+	forward_turn(motorA, motorB, CLOCKWISE, MAX_SPEED);
 	delay(2000);
 
   driveStraight(motorA, motorB, 0);
-  delay(5000);
+  delay(1000);
 
 
-  forward_turn(motorA, motorB, ANTICLOCKWISE, MAX_SPEED * 3/4);
+  forward_turn(motorA, motorB, CLOCKWISE, MAX_SPEED * 0.9);
 	delay(2000);
 
   driveStraight(motorA, motorB, 0);
-  delay(5000);
+  delay(1000);
+
+
+  forward_turn(motorA, motorB, CLOCKWISE, MAX_SPEED * 0.8);
+	delay(2000);
+
+  driveStraight(motorA, motorB, 0);
+  delay(1000);
 
   
-  forward_turn(motorA, motorB, ANTICLOCKWISE, MAX_SPEED / 2);
+  forward_turn(motorA, motorB, CLOCKWISE, MAX_SPEED * 0.7);
 	delay(2000);
 
   driveStraight(motorA, motorB, 0);
-  delay(5000);
+  delay(1000);
 
 
-  forward_turn(motorA, motorB, ANTICLOCKWISE, MAX_SPEED / 4);
+  forward_turn(motorA, motorB, CLOCKWISE, MAX_SPEED * 0.6);
 	delay(2000);
 
   driveStraight(motorA, motorB, 0);
-  delay(5000);
+  delay(1000);
 
 
-  forward_turn(motorA, motorB, ANTICLOCKWISE, 0);
+  forward_turn(motorA, motorB, CLOCKWISE, MAX_SPEED * 0.5);
+	delay(2000);
+
+  driveStraight(motorA, motorB, 0);
+  delay(1000);
+
+
+  forward_turn(motorA, motorB, CLOCKWISE, MAX_SPEED * 0.4);
+	delay(2000);
+
+  driveStraight(motorA, motorB, 0);
+  delay(1000);
+
+
+  forward_turn(motorA, motorB, CLOCKWISE, MAX_SPEED * 0.3);
+	delay(2000);
+
+  driveStraight(motorA, motorB, 0);
+  delay(1000);
+
+
+  forward_turn(motorA, motorB, CLOCKWISE, MAX_SPEED * 0.2);
+	delay(2000);
+
+  driveStraight(motorA, motorB, 0);
+  delay(1000);
+
+
+  forward_turn(motorA, motorB, CLOCKWISE, MAX_SPEED * 0.1);
+	delay(2000);
+
+  driveStraight(motorA, motorB, 0);
+  delay(1000);
+
+
+  forward_turn(motorA, motorB, CLOCKWISE, 0);
 	delay(2000);
 
   driveStraight(motorA, motorB, 0);
@@ -430,16 +485,16 @@ void update_distance_and_direction_readings(bool *enemy_was_to_left, bool *enemy
 }
 
 void main_competition_strategy() {
-  // delay(5000);  // Rules state we must wait for 5 seconds before moving -- FLIPPING THE SWITCH AUTOMATICALLY PAUSES IT FOR a few SECONDS - MAYBE 3500 INSTEAD???
+  // delay(5000);  // Rules state we must wait for 5 seconds before moving -- FLIPPING THE SWITCH AUTOMATICALLY PAUSES IT FOR a few SECONDS - MAYBE 3500 INSTEAD??? - BUT WE WILL HAVE TO TIME AND TEST OURSELVES
 
   // Past events - used as secondary resource.
   bool enemy_was_to_left = false;  // you might have to also constantly update these in the loop.
-  bool enemy_was_to_centre = true;
+  bool enemy_was_to_centre = false;
   bool enemy_was_to_right = false;
 
   // current statuses - used as primary resource.
   bool enemy_is_to_left = false;
-  bool enemy_is_to_centre = true;
+  bool enemy_is_to_centre = false;
   bool enemy_is_to_right = false;
 
   int distance_ultrasonic_left_cm = ultrasonic_left.read();  // It is better to call this every time to ensure we have most up to date data.
@@ -457,6 +512,25 @@ void main_competition_strategy() {
 
   unsigned long turnStartTime;
 
+  // Starting 'wiggle' to find enemy bot.
+  turnStartTime = millis();
+  while (millis() - turnStartTime < 100 && !(enemy_is_to_left || enemy_is_to_centre || enemy_is_to_right)) {
+    forward_turn(motorA, motorB, CLOCKWISE, MAX_SPEED);
+    update_distance_and_direction_readings(&enemy_was_to_left, &enemy_was_to_centre, &enemy_was_to_right, &enemy_is_to_left, &enemy_is_to_centre, &enemy_is_to_right, &distance_ultrasonic_left_cm, &distance_ultrasonic_centre_cm, &distance_ultrasonic_right_cm, &old_distance_ultrasonic_left_cm, &old_distance_ultrasonic_centre_cm, &old_distance_ultrasonic_right_cm, &front_left_ir_value, &back_left_ir_value, &back_right_ir_value, &front_right_ir_value);
+  }
+  turnStartTime = millis();
+  while (millis() - turnStartTime < 200 && !(enemy_is_to_left || enemy_is_to_centre || enemy_is_to_right)) {
+    forward_turn(motorA, motorB, ANTICLOCKWISE, MAX_SPEED);
+    update_distance_and_direction_readings(&enemy_was_to_left, &enemy_was_to_centre, &enemy_was_to_right, &enemy_is_to_left, &enemy_is_to_centre, &enemy_is_to_right, &distance_ultrasonic_left_cm, &distance_ultrasonic_centre_cm, &distance_ultrasonic_right_cm, &old_distance_ultrasonic_left_cm, &old_distance_ultrasonic_centre_cm, &old_distance_ultrasonic_right_cm, &front_left_ir_value, &back_left_ir_value, &back_right_ir_value, &front_right_ir_value);
+  }
+  turnStartTime = millis();
+  while (millis() - turnStartTime < 100 && !(enemy_is_to_left || enemy_is_to_centre || enemy_is_to_right)) {
+    forward_turn(motorA, motorB, CLOCKWISE, MAX_SPEED);
+    update_distance_and_direction_readings(&enemy_was_to_left, &enemy_was_to_centre, &enemy_was_to_right, &enemy_is_to_left, &enemy_is_to_centre, &enemy_is_to_right, &distance_ultrasonic_left_cm, &distance_ultrasonic_centre_cm, &distance_ultrasonic_right_cm, &old_distance_ultrasonic_left_cm, &old_distance_ultrasonic_centre_cm, &old_distance_ultrasonic_right_cm, &front_left_ir_value, &back_left_ir_value, &back_right_ir_value, &front_right_ir_value);
+  }
+
+
+  // Main loop
   // I CAN PROBABLY GET RID OF THE CHECKS THAT CHECK IF ITS GREATER THAN 0 BECAUSE APPARENTLY NOW THEY REUTRN A VERY BIG VALUE 200000 IF NOTHING IS DETECTED.
   while (true) {
 
@@ -522,50 +596,36 @@ void main_competition_strategy() {
 
 
     // Main attack/movement/search system - THESE VALUES IN THE TURNING ESPECIALLY NEED TWEAKING - TURN SLOWER MAYBE?????
-    if (enemy_is_to_centre || enemy_is_to_left || enemy_is_to_right) {
-      // Check current statuses - priority is given to these and we go off these first.
-      // Determine the direction with the least distance
-      if (distance_ultrasonic_left_cm < distance_ultrasonic_centre_cm &&
-          distance_ultrasonic_left_cm < distance_ultrasonic_right_cm) {
-        // Turn left
-        forward_turn(motorA, motorB, ANTICLOCKWISE, MAX_SPEED / max(distance_ultrasonic_left_cm / (RING_DIAMETER_CM / 2), 1));
+    // Check current statuses - priority is given to these and we go off these first.
+    if (enemy_is_to_centre) {
+      // Go forward
+      driveStraight(motorA, motorB, MAX_SPEED);
+    } else if (enemy_is_to_left) {
+      // Turn left
+      forward_turn(motorA, motorB, ANTICLOCKWISE, MAX_SPEED / max(distance_ultrasonic_left_cm / (RING_DIAMETER_CM / 2), 1));
+    } else if (enemy_is_to_right) {
+      // Turn right
+      forward_turn(motorA, motorB, CLOCKWISE, MAX_SPEED / max(distance_ultrasonic_right_cm / (RING_DIAMETER_CM / 2), 1));
 
-        old_distance_ultrasonic_right_cm = RING_DIAMETER_CM + 20;
-        old_distance_ultrasonic_centre_cm = RING_DIAMETER_CM + 20;
-        
-      } else if (distance_ultrasonic_right_cm < distance_ultrasonic_centre_cm &&
-                 distance_ultrasonic_right_cm < distance_ultrasonic_left_cm) {
-        // Turn right
-        forward_turn(motorA, motorB, CLOCKWISE, MAX_SPEED / max(distance_ultrasonic_right_cm / (RING_DIAMETER_CM / 2), 1));
+    // Check previous statuses. We go off these as a second resource of information if the enemy is not directly in front of our sensors at this moment in time.
+    // These might need some fine tuning - same with the primary resource variants.
+    } else if (enemy_was_to_centre) {
+      // Go forward
+      driveStraight(motorA, motorB, MAX_SPEED);
+    } else if (enemy_was_to_left) {
+      // Turn left
+      forward_turn(motorA, motorB, ANTICLOCKWISE, MAX_SPEED / max(old_distance_ultrasonic_left_cm / (RING_DIAMETER_CM / 2), 1));
+    } else if (enemy_was_to_right) {
+      // Turn right
+      forward_turn(motorA, motorB, CLOCKWISE, MAX_SPEED / max(old_distance_ultrasonic_right_cm / (RING_DIAMETER_CM / 2), 1));
 
-        old_distance_ultrasonic_left_cm = RING_DIAMETER_CM + 20;
-        old_distance_ultrasonic_centre_cm = RING_DIAMETER_CM + 20;
-      } else {
-        // Go forward
-        driveStraight(motorA, motorB, MAX_SPEED);
-        old_distance_ultrasonic_left_cm = RING_DIAMETER_CM + 20;
-        old_distance_ultrasonic_right_cm = RING_DIAMETER_CM + 20;
-      }
-
-    } else if (enemy_was_to_centre || enemy_was_to_left || enemy_was_to_right) {
-      // Check previous statuses. We go off these as a second resource of information if the enemy is not directly in front of our sensors at this moment in time.
-      // These might need some fine tuning - same with the primary resource variants.
-      if (old_distance_ultrasonic_left_cm < old_distance_ultrasonic_centre_cm &&
-          old_distance_ultrasonic_left_cm < old_distance_ultrasonic_right_cm) {
-        // Turn left
-        forward_turn(motorA, motorB, ANTICLOCKWISE, MAX_SPEED / max(old_distance_ultrasonic_left_cm / (RING_DIAMETER_CM / 2), 1));
-      } else if (old_distance_ultrasonic_right_cm < old_distance_ultrasonic_centre_cm &&
-          old_distance_ultrasonic_right_cm < old_distance_ultrasonic_left_cm) {
-        // Turn right
-        forward_turn(motorA, motorB, CLOCKWISE, MAX_SPEED / max(old_distance_ultrasonic_right_cm / (RING_DIAMETER_CM / 2), 1));
-      } else {
-        // Go forward
-        driveStraight(motorA, motorB, MAX_SPEED);
-      }
     } else {
       // Search by spinning on the spot -- MIGHT CHANGE TO SPIN SLOWER??? OR MAYBE NOT COS AT THE START WE COULD BE DOOMED. IMPLEMENT STRAIGHT LINE CHARGE STRATEGY, but THAT MEANS THEY WILL BE ABLE TO INTERCEPT OR TRACK US IF WE PUT OUR ROBOTS TO THE SAME SIDE.? 
       // OR MAYBE WE PURPOSEFULLY PLACE IT SO THAT OUR SIDEWAYS ULTRASONIC SENSOR ALWAYS COVERS THE POSSIBLE SPOTS THEY COULD PLACE THEIR BOTS AT!!!
-      forward_turn(motorA, motorB, CLOCKWISE, MAX_SPEED);
+      // forward_turn(motorA, motorB, CLOCKWISE, MAX_SPEED);
+
+      // Or here is the charge in straight line strategy to close off the potential spaces our opponent can be in.
+      driveStraight(motorA, motorB, MAX_SPEED);
     }
   }
 }
@@ -585,6 +645,7 @@ void test_ultrasonics() {
 }
 
 void loop() {
+  Serial.println("begin");
   // main_competition_strategy();
   testing_movement();
   // test_ultrasonics();
